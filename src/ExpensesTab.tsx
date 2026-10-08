@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { CATEGORIES, categoryName } from './categories';
-import { LastAdded } from './ChartsTab';
+import { LastAdded } from './AnalysisTab';
+import { buildMonthWorkbook, saveFile } from './export';
 import { Budgets, effectiveBudget, Expense, money, monthLabel, PaidBy, Partners, today } from './store';
 
 interface Props {
@@ -20,6 +21,14 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
   const [paidBy, setPaidBy] = useState<PaidBy>('joint');
   const [date, setDate] = useState(today());
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [exportNote, setExportNote] = useState<string | null>(null);
+
+  async function downloadExcel() {
+    setExportNote(null);
+    const data = buildMonthWorkbook(month, expenses, budgets, partners);
+    const result = await saveFile(`Expenses ${month}.xlsx`, data);
+    if (result === 'unavailable') setExportNote('Downloads are not available in this view.');
+  }
 
   const { budget } = effectiveBudget(budgets, month);
   const monthExpenses = useMemo(
@@ -145,7 +154,11 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
       </section>
 
       <section className="card">
-        <h2>Expenses in {monthLabel(month)}</h2>
+        <div className="card-head">
+          <h2>Expenses in {monthLabel(month)}</h2>
+          {monthExpenses.length > 0 && <button onClick={downloadExcel}>⬇ Download Excel</button>}
+        </div>
+        {exportNote && <p className="muted small">{exportNote}</p>}
         {monthExpenses.length === 0 ? (
           <p className="muted">Nothing recorded for this month yet.</p>
         ) : (

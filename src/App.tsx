@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import ExpensesTab from './ExpensesTab';
 import BudgetsTab from './BudgetsTab';
-import ChartsTab, { LastAdded } from './ChartsTab';
+import AnalysisTab, { LastAdded } from './AnalysisTab';
+import AveragesTab from './AveragesTab';
 import { CATEGORIES } from './categories';
 import { currentMonth, useBudgets, useExpenses, usePartners } from './store';
 
-type Tab = 'expenses' | 'charts' | 'budgets';
+type Tab = 'expenses' | 'analysis' | 'averages' | 'budgets';
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('expenses');
@@ -35,8 +36,11 @@ export default function App() {
         <button className={tab === 'expenses' ? 'active' : ''} onClick={() => go('expenses')}>
           Expenses
         </button>
-        <button className={tab === 'charts' ? 'active' : ''} onClick={() => { setLastAdded(null); go('charts'); }}>
-          Charts
+        <button className={tab === 'analysis' ? 'active' : ''} onClick={() => { setLastAdded(null); go('analysis'); }}>
+          Analysis
+        </button>
+        <button className={tab === 'averages' ? 'active' : ''} onClick={() => go('averages')}>
+          Averages
         </button>
         <button className={tab === 'budgets' ? 'active' : ''} onClick={() => go('budgets')}>
           Budgets
@@ -56,11 +60,11 @@ export default function App() {
               setLastAdded(added);
               setChartCategory(added.category);
               setMonth(added.month);
-              go('charts');
+              go('analysis');
             }}
           />
-        ) : tab === 'charts' ? (
-          <ChartsTab
+        ) : tab === 'analysis' ? (
+          <AnalysisTab
             month={month}
             expenses={expenses}
             budgets={budgets}
@@ -70,6 +74,8 @@ export default function App() {
             goToExpenses={() => go('expenses')}
             goToBudgets={() => go('budgets')}
           />
+        ) : tab === 'averages' ? (
+          <AveragesTab month={month} expenses={expenses} budgets={budgets} />
         ) : (
           <BudgetsTab
             month={month}
@@ -80,7 +86,7 @@ export default function App() {
           />
         )}
       </main>
-      <footer className="version muted small">Version 4 · Expenses, Charts, Budgets</footer>
+      <footer className="version muted small">Version 5 · Expenses, Analysis, Averages, Budgets</footer>
     </div>
   );
 }

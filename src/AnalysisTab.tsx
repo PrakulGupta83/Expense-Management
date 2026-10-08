@@ -19,7 +19,7 @@ interface Props {
   goToBudgets: () => void;
 }
 
-export default function ChartsTab(props: Props) {
+export default function AnalysisTab(props: Props) {
   const { month, expenses, budgets, category, setCategory, lastAdded, goToExpenses, goToBudgets } = props;
   const { budget } = effectiveBudget(budgets, month);
 

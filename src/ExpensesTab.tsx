@@ -2,31 +2,42 @@ import { FormEvent, useMemo, useState } from 'react';
 import { CATEGORIES, categoryName } from './categories';
 import { LastAdded } from './AnalysisTab';
 import { buildMonthWorkbook, saveFile } from './export';
-import { Budgets, effectiveBudget, Expense, money, monthLabel, PaidBy, Partners, today } from './store';
+import { SOURCES, sourceName } from './sources';
+import { AppData, effectiveBudget, effectivePlan, Expense, money, monthLabel, today } from './store';
 
 interface Props {
   month: string;
   expenses: Expense[];
   setExpenses: (fn: (prev: Expense[]) => Expense[]) => void;
-  budgets: Budgets;
-  partners: Partners;
+  data: AppData;
   goToBudgets: () => void;
   onAdded: (added: LastAdded) => void;
 }
 
-export default function ExpensesTab({ month, expenses, setExpenses, budgets, partners, goToBudgets, onAdded }: Props) {
+export default function ExpensesTab({ month, expenses, setExpenses, data, goToBudgets, onAdded }: Props) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>(CATEGORIES[0].id);
-  const [paidBy, setPaidBy] = useState<PaidBy>('joint');
+  const { budgets, plans } = data;
+  const plan = effectivePlan(budgets, plans, month);
+  const plannedSource = plan[category]?.source;
+  const [paidFrom, setPaidFrom] = useState<string>(plannedSource ?? SOURCES[0].id);
+  const [sourceTouched, setSourceTouched] = useState(false);
+
+  function pickCategory(id: string) {
+    setCategory(id);
+    // Follow the budget's planned source until the person picks one themselves.
+    const planned = plan[id]?.source;
+    if (planned && !sourceTouched) setPaidFrom(planned);
+  }
   const [date, setDate] = useState(today());
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [exportNote, setExportNote] = useState<string | null>(null);
 
   async function downloadExcel() {
     setExportNote(null);
-    const data = buildMonthWorkbook(month, expenses, budgets, partners);
-    const result = await saveFile(`Expenses ${month}.xlsx`, data);
+    const file = buildMonthWorkbook(month, data);
+    const result = await saveFile(`Expenses ${month}.xlsx`, file);
     if (result === 'unavailable') setExportNote('Downloads are not available in this view.');
   }
 
@@ -55,12 +66,13 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
       amount: value,
       description: description.trim(),
       category,
-      paidBy,
+      paidFrom,
     };
     setExpenses((prev) => [...prev, expense]);
 
     setAmount('');
     setDescription('');
+    setSourceTouched(false);
     onAdded({ amount: value, category, month: date.slice(0, 7) });
   }
 
@@ -69,7 +81,6 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
     setPendingDelete(null);
   }
 
-  const payerName = (p: PaidBy) => (p === 'joint' ? 'Joint' : partners[p]);
 
   // Show categories that have a budget or spending this month.
   const rows = CATEGORIES.filter((c) => (budget[c.id] ?? 0) > 0 || (spentByCategory[c.id] ?? 0) > 0);
@@ -94,7 +105,7 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
           </label>
           <label>
             Category
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select value={category} onChange={(e) => pickCategory(e.target.value)}>
               {CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -112,17 +123,31 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
             />
           </label>
           <label>
-            Paid by
-            <select value={paidBy} onChange={(e) => setPaidBy(e.target.value as PaidBy)}>
-              <option value="joint">Joint</option>
-              <option value="partner1">{partners.partner1}</option>
-              <option value="partner2">{partners.partner2}</option>
+            Paid from
+            <select
+              value={paidFrom}
+              onChange={(e) => {
+                setPaidFrom(e.target.value);
+                setSourceTouched(true);
+              }}
+            >
+              {SOURCES.map((src) => (
+                <option key={src.id} value={src.id}>
+                  {src.name}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             Date
             <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
           </label>
+          {plannedSource && plannedSource !== paidFrom && (
+            <p className="hint wide">
+              The budget plans {categoryName(category)} from <strong>{sourceName(plannedSource)}</strong>. This amount will
+              show under "Money to shift" in Analysis.
+            </p>
+          )}
           <button type="submit" className="primary wide">
             Add expense
           </button>
@@ -168,7 +193,7 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
                 <div>
                   <strong>{money(e.amount)}</strong> · {categoryName(e.category)}
                   <div className="muted small">
-                    {e.date} · {payerName(e.paidBy)}
+                    {e.date} · {sourceName(e.paidFrom)}
                     {e.description && ` · ${e.description}`}
                   </div>
                 </div>

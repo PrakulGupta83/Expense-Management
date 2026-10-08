@@ -151,3 +151,29 @@ input[type='date'], input[type='month'] { -webkit-appearance: none; appearance: 
 .drive-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .drive-actions .link { font-size: inherit; }
 button.link:disabled { opacity: 0.5; cursor: default; }
+/* Budget list with source and payer */
+.budget-list { list-style: none; margin: 0; padding: 0; }
+.budget-list > li { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid var(--border); }
+.budget-list > li:first-child { border-top: none; }
+.budget-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.budget-row > span:first-child { min-width: 0; }
+.budget-row input { width: 9.5rem; flex: none; text-align: right; }
+.budget-row.total { font-weight: 700; }
+.budget-plan { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; }
+.budget-plan select { font-size: 15px; padding-inline: 8px; }
+.num { font-variant-numeric: tabular-nums; }
+.hint { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--track); font-size: 0.85rem; color: var(--text); }
+/* Money to shift */
+.shift-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.shift-list > li { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--warn); border-radius: 10px; }
+.shift-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.shift-route { margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.shift-route > div { display: flex; gap: 8px; }
+.shift-route dt { width: 2.6rem; flex: none; color: var(--muted); }
+.shift-route dd { margin: 0; font-weight: 600; }
+.shift-done { align-self: stretch; }
+.settled { margin: 0; color: var(--ok); }
+.done-transfers { margin-top: 12px; font-size: 0.9rem; }
+.done-transfers summary { cursor: pointer; color: var(--muted); padding: 6px 0; }
+.done-transfers ul { list-style: none; margin: 0; padding: 0; }
+.done-transfers li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); }

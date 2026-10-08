@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { CATEGORIES, categoryName } from './categories';
-import { Budgets, effectiveBudget, Expense, money, monthLabel } from './store';
+import SettleCard from './SettleCard';
+import { AppData, Budgets, effectiveBudget, Expense, money, monthLabel, Transfer } from './store';
 
 export interface LastAdded {
   amount: number;
@@ -17,10 +18,12 @@ interface Props {
   lastAdded: LastAdded | null;
   goToExpenses: () => void;
   goToBudgets: () => void;
+  data: AppData;
+  setTransfers: (fn: (prev: Transfer[]) => Transfer[]) => void;
 }
 
 export default function AnalysisTab(props: Props) {
-  const { month, expenses, budgets, category, setCategory, lastAdded, goToExpenses, goToBudgets } = props;
+  const { month, expenses, budgets, category, setCategory, lastAdded, goToExpenses, goToBudgets, data, setTransfers } = props;
   const { budget } = effectiveBudget(budgets, month);
 
   const spentByCategory = useMemo(() => {
@@ -81,6 +84,8 @@ export default function AnalysisTab(props: Props) {
           <BudgetDonut label="Overall" spent={totalSpent} budget={totalBudget} />
         </section>
       </div>
+
+      <SettleCard month={month} data={data} setTransfers={setTransfers} goToBudgets={goToBudgets} />
 
       <section className="card" id="other-categories">
         <h2>Other categories</h2>

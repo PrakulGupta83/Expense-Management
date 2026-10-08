@@ -8,7 +8,29 @@ export interface Expense {
   amount: number;
   description: string;
   category: string;
-  paidBy: PaidBy;
+  /** Source (bank account / card) the money actually came from. */
+  paidFrom?: string;
+  /** Older entries recorded who paid instead of the source. */
+  paidBy?: PaidBy;
+}
+
+/** Planned source and responsible person for a category, set in the budget. */
+export interface PlanLine {
+  source?: string;
+  payer?: PaidBy;
+}
+export type MonthPlan = Record<string, PlanLine>;
+/** Stored under the same month keys as Budgets, saved together with them. */
+export type BudgetPlans = Record<string, MonthPlan>;
+
+/** A shift of money between sources that the couple has already made. */
+export interface Transfer {
+  id: string;
+  month: string; // YYYY-MM the shift settles
+  from: string;
+  to: string;
+  amount: number;
+  date: string;
 }
 
 // Budgets are stored per month ("YYYY-MM" -> category -> amount).
@@ -20,6 +42,15 @@ export type Budgets = Record<string, MonthBudget>;
 export interface Partners {
   partner1: string;
   partner2: string;
+}
+
+/** Everything the app stores, passed around for exports and summaries. */
+export interface AppData {
+  expenses: Expense[];
+  budgets: Budgets;
+  plans: BudgetPlans;
+  transfers: Transfer[];
+  partners: Partners;
 }
 
 function usePersistentState<T>(key: string, initial: T) {
@@ -49,6 +80,14 @@ export function useBudgets() {
   return usePersistentState<Budgets>('cem.budgets', {});
 }
 
+export function useBudgetPlans() {
+  return usePersistentState<BudgetPlans>('cem.budgetPlans', {});
+}
+
+export function useTransfers() {
+  return usePersistentState<Transfer[]>('cem.transfers', []);
+}
+
 export function usePartners() {
   return usePersistentState<Partners>('cem.partners', { partner1: 'Partner 1', partner2: 'Partner 2' });
 }
@@ -70,6 +109,17 @@ export function effectiveBudget(budgets: Budgets, month: string): { budget: Mont
     .sort()
     .pop();
   return from ? { budget: budgets[from], from } : { budget: {}, from: null };
+}
+
+/** Plan (source + payer) in effect for `month`; it follows the same month as the budget amounts. */
+export function effectivePlan(budgets: Budgets, plans: BudgetPlans, month: string): MonthPlan {
+  const { from } = effectiveBudget(budgets, month);
+  return from ? (plans[from] ?? {}) : {};
+}
+
+export function payerName(p: PaidBy | undefined, partners: Partners): string {
+  if (!p) return '—';
+  return p === 'joint' ? 'Joint' : partners[p];
 }
 
 export function monthLabel(month: string): string {

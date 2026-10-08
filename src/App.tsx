@@ -5,7 +5,7 @@ import AnalysisTab, { LastAdded } from './AnalysisTab';
 import AveragesTab from './AveragesTab';
 import { CATEGORIES } from './categories';
 import { DriveStatus, useDriveSync } from './DriveSync';
-import { currentMonth, useBudgets, useExpenses, usePartners } from './store';
+import { AppData, currentMonth, useBudgetPlans, useBudgets, useExpenses, usePartners, useTransfers } from './store';
 
 type Tab = 'expenses' | 'analysis' | 'averages' | 'budgets';
 
@@ -15,9 +15,12 @@ export default function App() {
   const [expenses, setExpenses] = useExpenses();
   const [budgets, setBudgets] = useBudgets();
   const [partners, setPartners] = usePartners();
+  const [plans, setPlans] = useBudgetPlans();
+  const [transfers, setTransfers] = useTransfers();
+  const data: AppData = { expenses, budgets, plans, transfers, partners };
   const [chartCategory, setChartCategory] = useState<string>(CATEGORIES[0].id);
   const [lastAdded, setLastAdded] = useState<LastAdded | null>(null);
-  const drive = useDriveSync(month, expenses, budgets, partners);
+  const drive = useDriveSync(month, data);
 
   function go(next: Tab) {
     setTab(next);
@@ -56,8 +59,7 @@ export default function App() {
             month={month}
             expenses={expenses}
             setExpenses={setExpenses}
-            budgets={budgets}
-            partners={partners}
+            data={data}
             goToBudgets={() => go('budgets')}
             onAdded={(added) => {
               setLastAdded(added);
@@ -76,6 +78,8 @@ export default function App() {
             lastAdded={lastAdded}
             goToExpenses={() => go('expenses')}
             goToBudgets={() => go('budgets')}
+            data={data}
+            setTransfers={setTransfers}
           />
         ) : tab === 'averages' ? (
           <AveragesTab month={month} expenses={expenses} budgets={budgets} />
@@ -84,12 +88,14 @@ export default function App() {
             month={month}
             budgets={budgets}
             setBudgets={setBudgets}
+            plans={plans}
+            setPlans={setPlans}
             partners={partners}
             setPartners={setPartners}
           />
         )}
       </main>
-      <footer className="version muted small">Version 6 · Expenses, Analysis, Averages, Budgets</footer>
+      <footer className="version muted small">Version 7 · Expenses, Analysis, Averages, Budgets</footer>
     </div>
   );
 }

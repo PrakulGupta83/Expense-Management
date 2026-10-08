@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { describeDriveError, getDrive, saveToDrive } from './drive';
 import { buildMonthWorkbook } from './export';
-import { Budgets, Expense, monthLabel, Partners } from './store';
+import { AppData, Expense, monthLabel } from './store';
 
 type Status =
   | { kind: 'checking' }
@@ -18,14 +18,15 @@ function monthSignatures(expenses: Expense[]): Record<string, string> {
 }
 
 /** Keeps one Excel file per month in Google Drive, re-saved a few seconds after any change. */
-export function useDriveSync(month: string, expenses: Expense[], budgets: Budgets, partners: Partners) {
+export function useDriveSync(month: string, data: AppData) {
+  const { expenses, budgets, plans, transfers } = data;
   const [status, setStatus] = useState<Status>({ kind: 'checking' });
   const [folderUrl, setFolderUrl] = useState<string | null>(null);
   const dirty = useRef(new Set<string>());
   const prevSigs = useRef<Record<string, string> | null>(null);
-  const prevBudgets = useRef<Budgets | null>(null);
-  const latest = useRef({ expenses, budgets, partners });
-  latest.current = { expenses, budgets, partners };
+  const prevPlanning = useRef<unknown[] | null>(null);
+  const latest = useRef(data);
+  latest.current = data;
   const running = useRef(false);
 
   useEffect(() => {
@@ -40,9 +41,8 @@ export function useDriveSync(month: string, expenses: Expense[], budgets: Budget
         const m = [...dirty.current][0];
         dirty.current.delete(m);
         setStatus({ kind: 'saving', month: m });
-        const { expenses: ex, budgets: bu, partners: pa } = latest.current;
         try {
-          const { folder } = await saveToDrive(`Expenses ${m}.xlsx`, buildMonthWorkbook(m, ex, bu, pa));
+          const { folder } = await saveToDrive(`Expenses ${m}.xlsx`, buildMonthWorkbook(m, latest.current));
           if (folder.viewUrl) setFolderUrl(folder.viewUrl);
           setStatus({ kind: 'saved', month: m, at: new Date() });
         } catch (err) {
@@ -65,13 +65,15 @@ export function useDriveSync(month: string, expenses: Expense[], budgets: Budget
       }
     }
     prevSigs.current = sigs;
-    if (prevBudgets.current && prevBudgets.current !== budgets) dirty.current.add(month);
-    prevBudgets.current = budgets;
+    // Budget, plan or transfer changes re-save the month being viewed.
+    const planning = [budgets, plans, transfers];
+    if (prevPlanning.current && planning.some((v, i) => v !== prevPlanning.current![i])) dirty.current.add(month);
+    prevPlanning.current = planning;
     if (!dirty.current.size || status.kind === 'unavailable' || status.kind === 'checking') return;
     const t = setTimeout(flush, 2500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expenses, budgets]);
+  }, [expenses, budgets, plans, transfers]);
 
   function saveNow() {
     dirty.current.add(month);

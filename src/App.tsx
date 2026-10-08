@@ -4,6 +4,7 @@ import BudgetsTab from './BudgetsTab';
 import AnalysisTab, { LastAdded } from './AnalysisTab';
 import AveragesTab from './AveragesTab';
 import { CATEGORIES } from './categories';
+import { DriveStatus, useDriveSync } from './DriveSync';
 import { currentMonth, useBudgets, useExpenses, usePartners } from './store';
 
 type Tab = 'expenses' | 'analysis' | 'averages' | 'budgets';
@@ -16,6 +17,7 @@ export default function App() {
   const [partners, setPartners] = usePartners();
   const [chartCategory, setChartCategory] = useState<string>(CATEGORIES[0].id);
   const [lastAdded, setLastAdded] = useState<LastAdded | null>(null);
+  const drive = useDriveSync(month, expenses, budgets, partners);
 
   function go(next: Tab) {
     setTab(next);
@@ -46,6 +48,7 @@ export default function App() {
           Budgets
         </button>
       </nav>
+      <DriveStatus sync={drive} month={month} />
 
       <main>
         {tab === 'expenses' ? (
@@ -86,7 +89,7 @@ export default function App() {
           />
         )}
       </main>
-      <footer className="version muted small">Version 5 · Expenses, Analysis, Averages, Budgets</footer>
+      <footer className="version muted small">Version 6 · Expenses, Analysis, Averages, Budgets</footer>
     </div>
   );
 }

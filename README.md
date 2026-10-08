@@ -24,4 +24,4 @@ npm run dev      # local development
 npm run build    # production build in dist/
 ```
 
-Data is saved in the browser's localStorage, so it stays on the device/browser where it was entered. Use **Download Excel** on the Expenses tab to export a month (Expenses + Budget summary sheets).
+Data is saved in the browser's localStorage. When opened from claude.ai with the Google Drive connector, each month's Excel (Expenses + Budget summary) is also saved to an "Our Expenses" folder in Google Drive a few seconds after every change. **Download Excel** on the Expenses tab saves a copy to the device.

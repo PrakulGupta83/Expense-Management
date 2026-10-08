@@ -145,3 +145,9 @@ input[type='date'], input[type='month'] { -webkit-appearance: none; appearance: 
 .avg-table .num { text-align: right; white-space: nowrap; }
 .avg-table tfoot td { font-weight: 700; }
 .tabs button { font-size: 0.95rem; white-space: nowrap; }
+/* Google Drive status */
+.drive-bar { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 16px; padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+.drive-bar.error { border-color: var(--over); color: var(--text); }
+.drive-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.drive-actions .link { font-size: inherit; }
+button.link:disabled { opacity: 0.5; cursor: default; }

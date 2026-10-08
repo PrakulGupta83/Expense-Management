@@ -130,3 +130,4 @@ input[type='date'], input[type='month'] { -webkit-appearance: none; appearance: 
   .expense-list li { align-items: flex-start; }
   button.primary, .actions button { min-height: 44px; }
 }
+.version { text-align: center; margin-top: 24px; }

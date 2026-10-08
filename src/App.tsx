@@ -80,6 +80,7 @@ export default function App() {
           />
         )}
       </main>
+      <footer className="version muted small">Version 3 · Expenses, Charts, Budgets</footer>
     </div>
   );
 }

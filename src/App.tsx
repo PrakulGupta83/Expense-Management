@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import ExpensesTab from './ExpensesTab';
 import BudgetsTab from './BudgetsTab';
+import ChartsTab, { LastAdded } from './ChartsTab';
+import { CATEGORIES } from './categories';
 import { currentMonth, useBudgets, useExpenses, usePartners } from './store';
 
-type Tab = 'expenses' | 'budgets';
+type Tab = 'expenses' | 'charts' | 'budgets';
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('expenses');
@@ -11,6 +13,13 @@ export default function App() {
   const [expenses, setExpenses] = useExpenses();
   const [budgets, setBudgets] = useBudgets();
   const [partners, setPartners] = usePartners();
+  const [chartCategory, setChartCategory] = useState<string>(CATEGORIES[0].id);
+  const [lastAdded, setLastAdded] = useState<LastAdded | null>(null);
+
+  function go(next: Tab) {
+    setTab(next);
+    window.scrollTo({ top: 0 });
+  }
 
   return (
     <div className="app">
@@ -23,10 +32,13 @@ export default function App() {
       </header>
 
       <nav className="tabs">
-        <button className={tab === 'expenses' ? 'active' : ''} onClick={() => setTab('expenses')}>
+        <button className={tab === 'expenses' ? 'active' : ''} onClick={() => go('expenses')}>
           Expenses
         </button>
-        <button className={tab === 'budgets' ? 'active' : ''} onClick={() => setTab('budgets')}>
+        <button className={tab === 'charts' ? 'active' : ''} onClick={() => { setLastAdded(null); go('charts'); }}>
+          Charts
+        </button>
+        <button className={tab === 'budgets' ? 'active' : ''} onClick={() => go('budgets')}>
           Budgets
         </button>
       </nav>
@@ -39,7 +51,24 @@ export default function App() {
             setExpenses={setExpenses}
             budgets={budgets}
             partners={partners}
-            goToBudgets={() => setTab('budgets')}
+            goToBudgets={() => go('budgets')}
+            onAdded={(added) => {
+              setLastAdded(added);
+              setChartCategory(added.category);
+              setMonth(added.month);
+              go('charts');
+            }}
+          />
+        ) : tab === 'charts' ? (
+          <ChartsTab
+            month={month}
+            expenses={expenses}
+            budgets={budgets}
+            category={chartCategory}
+            setCategory={setChartCategory}
+            lastAdded={lastAdded}
+            goToExpenses={() => go('expenses')}
+            goToBudgets={() => go('budgets')}
           />
         ) : (
           <BudgetsTab

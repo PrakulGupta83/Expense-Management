@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/BudgetsTab.tsx","./src/ExpensesTab.tsx","./src/categories.ts","./src/main.tsx","./src/store.ts"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/BudgetsTab.tsx","./src/ChartsTab.tsx","./src/ExpensesTab.tsx","./src/categories.ts","./src/main.tsx","./src/store.ts"],"version":"5.9.3"}

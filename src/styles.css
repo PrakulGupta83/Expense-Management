@@ -88,3 +88,45 @@ button.icon { border: none; background: none; color: var(--muted); padding: 4px 
 button.danger { background: var(--over); border-color: var(--over); color: #fff; font-weight: 600; }
 .confirm-box { border: 1px solid var(--warn); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
 .confirm-box p { margin: 0; }
+/* Charts tab */
+.added-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--ok); }
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-grid > * { min-width: 0; }
+@media (max-width: 640px) { .chart-grid { grid-template-columns: 1fr; } }
+.donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.donut { width: 100%; max-width: 200px; height: auto; }
+.donut circle { fill: none; stroke-width: 20; stroke-linecap: butt; }
+.donut-rest { stroke: var(--track); }
+.donut-spent.ok { stroke: var(--ok); }
+.donut-spent.warn { stroke: var(--warn); }
+.donut-spent.over { stroke: var(--over); }
+.donut-spent.none { stroke: var(--muted); }
+.donut-pct { fill: var(--text); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.donut-sub { fill: var(--muted); font-size: 12px; }
+.donut-legend { width: 100%; margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+.donut-legend > div { display: flex; justify-content: space-between; gap: 8px; }
+.donut-legend dt { color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.donut-legend dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--ok); }
+.swatch.warn { background: var(--warn); }
+.swatch.over { background: var(--over); }
+.swatch.none { background: var(--muted); }
+.swatch.rest { background: var(--track); border: 1px solid var(--border); }
+a.link { color: var(--accent); }
+.category-links { list-style: none; margin: 0; padding: 0; }
+.category-links li + li { border-top: 1px solid var(--border); }
+.category-links button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: none; border-radius: 0; background: none; padding: 12px 0; text-align: left; min-height: 44px; }
+#other-categories { scroll-margin-top: 12px; }
+
+/* Phone tweaks */
+input, select { font-size: 16px; min-width: 0; } /* 16px stops iOS from zooming into fields */
+input[type='date'], input[type='month'] { -webkit-appearance: none; appearance: none; min-height: 42px; }
+@media (max-width: 520px) {
+  .app { padding-inline: 16px; }
+  .tabs button { flex: 1; padding: 12px 4px; }
+  .header h1 { font-size: 1.3rem; }
+  .month-picker input { width: auto; }
+  .card { padding: 14px; }
+  .expense-list li { align-items: flex-start; }
+  button.primary, .actions button { min-height: 44px; }
+}

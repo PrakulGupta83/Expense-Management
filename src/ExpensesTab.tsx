@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { CATEGORIES, categoryName } from './categories';
+import { LastAdded } from './ChartsTab';
 import { Budgets, effectiveBudget, Expense, money, monthLabel, PaidBy, Partners, today } from './store';
 
 interface Props {
@@ -9,15 +10,15 @@ interface Props {
   budgets: Budgets;
   partners: Partners;
   goToBudgets: () => void;
+  onAdded: (added: LastAdded) => void;
 }
 
-export default function ExpensesTab({ month, expenses, setExpenses, budgets, partners, goToBudgets }: Props) {
+export default function ExpensesTab({ month, expenses, setExpenses, budgets, partners, goToBudgets, onAdded }: Props) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>(CATEGORIES[0].id);
   const [paidBy, setPaidBy] = useState<PaidBy>('joint');
   const [date, setDate] = useState(today());
-  const [flash, setFlash] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const { budget } = effectiveBudget(budgets, month);
@@ -49,17 +50,9 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
     };
     setExpenses((prev) => [...prev, expense]);
 
-    const catBudget = budget[category] ?? 0;
-    if (catBudget > 0 && date.startsWith(month)) {
-      const spent = (spentByCategory[category] ?? 0) + value;
-      const pctOfBudget = ((value / catBudget) * 100).toFixed(1);
-      const used = ((spent / catBudget) * 100).toFixed(1);
-      setFlash(`${money(value)} is ${pctOfBudget}% of the ${categoryName(category)} budget — now ${used}% used.`);
-    } else {
-      setFlash(`Added ${money(value)} to ${categoryName(category)}.`);
-    }
     setAmount('');
     setDescription('');
+    onAdded({ amount: value, category, month: date.slice(0, 7) });
   }
 
   function remove(id: string) {
@@ -125,7 +118,6 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
             Add expense
           </button>
         </form>
-        {flash && <p className="flash">{flash}</p>}
       </section>
 
       <section className="card">

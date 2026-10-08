@@ -14,7 +14,7 @@
   background: var(--bg);
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #12161c;
     --card: #1b2129;
     --text: #e6eaef;
@@ -22,7 +22,18 @@
     --border: #2c343e;
     --accent: #5b8ff0;
     --track: #2a313a;
+    color-scheme: dark;
   }
+}
+:root[data-theme='dark'] {
+  --bg: #12161c;
+  --card: #1b2129;
+  --text: #e6eaef;
+  --muted: #94a0ad;
+  --border: #2c343e;
+  --accent: #5b8ff0;
+  --track: #2a313a;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
@@ -72,3 +83,8 @@ button.icon { border: none; background: none; color: var(--muted); padding: 4px 
 .budget-table input { text-align: right; }
 .budget-table tfoot td { font-weight: 700; }
 .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.confirm-inline { display: flex; gap: 6px; }
+.confirm-inline button { padding: 5px 10px; font-size: 0.85rem; }
+button.danger { background: var(--over); border-color: var(--over); color: #fff; font-weight: 600; }
+.confirm-box { border: 1px solid var(--warn); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.confirm-box p { margin: 0; }

@@ -18,6 +18,7 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
   const [paidBy, setPaidBy] = useState<PaidBy>('joint');
   const [date, setDate] = useState(today());
   const [flash, setFlash] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const { budget } = effectiveBudget(budgets, month);
   const monthExpenses = useMemo(
@@ -62,7 +63,8 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
   }
 
   function remove(id: string) {
-    if (confirm('Delete this expense?')) setExpenses((prev) => prev.filter((e) => e.id !== id));
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+    setPendingDelete(null);
   }
 
   const payerName = (p: PaidBy) => (p === 'joint' ? 'Joint' : partners[p]);
@@ -165,9 +167,18 @@ export default function ExpensesTab({ month, expenses, setExpenses, budgets, par
                     {e.description && ` · ${e.description}`}
                   </div>
                 </div>
-                <button className="icon" aria-label="Delete expense" onClick={() => remove(e.id)}>
-                  ✕
-                </button>
+                {pendingDelete === e.id ? (
+                  <span className="confirm-inline">
+                    <button className="danger" onClick={() => remove(e.id)}>
+                      Delete
+                    </button>
+                    <button onClick={() => setPendingDelete(null)}>Keep</button>
+                  </span>
+                ) : (
+                  <button className="icon" aria-label="Delete expense" onClick={() => setPendingDelete(e.id)}>
+                    ✕
+                  </button>
+                )}
               </li>
             ))}
           </ul>

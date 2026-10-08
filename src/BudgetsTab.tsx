@@ -13,10 +13,11 @@ interface Props {
 export default function BudgetsTab({ month, budgets, setBudgets, partners, setPartners }: Props) {
   const { budget, from } = effectiveBudget(budgets, month);
   const [draft, setDraft] = useState<Record<string, string> | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const editing = draft !== null;
 
   function startEditing() {
-    if (from && !confirm(`The budget is locked. Do you both agree to change it from ${monthLabel(month)} onwards?`)) return;
+    setConfirming(false);
     setDraft(Object.fromEntries(CATEGORIES.map((c) => [c.id, budget[c.id] ? String(budget[c.id]) : ''])));
   }
 
@@ -40,12 +41,24 @@ export default function BudgetsTab({ month, budgets, setBudgets, partners, setPa
       <section className="card">
         <div className="card-head">
           <h2>Monthly budget — {monthLabel(month)}</h2>
-          {!editing && (
-            <button className="primary" onClick={startEditing}>
+          {!editing && !confirming && (
+            <button className="primary" onClick={from ? () => setConfirming(true) : startEditing}>
               {from ? '🔒 Change budget' : 'Set budget'}
             </button>
           )}
         </div>
+
+        {confirming && (
+          <div className="confirm-box">
+            <p>The budget is locked. Do you both agree to change it from {monthLabel(month)} onwards?</p>
+            <div className="actions">
+              <button onClick={() => setConfirming(false)}>Keep current budget</button>
+              <button className="primary" onClick={startEditing}>
+                Yes, change it
+              </button>
+            </div>
+          </div>
+        )}
 
         {!editing && (
           <p className="muted">
